@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scheduling.Service", "Backup.Service\Scheduling.Service.csproj", "{F73299F7-4B10-4915-873C-B1DF71BF5901}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scheduling.Service", "Scheduling.Service\Scheduling.Service.csproj", "{F73299F7-4B10-4915-873C-B1DF71BF5901}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduling.ScheduledJobs", "ScheduledJob1\Scheduling.ScheduledJobs.csproj", "{29A3A9C9-4E4F-4BED-BF6A-49541620262B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduling.ScheduledJobs", "Scheduling.ScheduledJobs\Scheduling.ScheduledJobs.csproj", "{29A3A9C9-4E4F-4BED-BF6A-49541620262B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scheduling.Contracts", "Scheduling.Contracts\Scheduling.Contracts.csproj", "{8FEAA0EF-5A80-4034-BBCB-5B89CDBECDEA}"
 EndProject
