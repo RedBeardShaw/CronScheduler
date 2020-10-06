@@ -1,5 +1,4 @@
 ﻿using Scheduling.Service.Helpers;
-using Scheduling.Service.Helpers.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Quartz;
@@ -11,13 +10,13 @@ using System.Threading.Tasks;
 using NLog;
 using System.Configuration;
 using Scheduling.ScheduledJobs;
-using Scheduling.Contracts;
 
 namespace Scheduling.Service
 {
     public class SchedulingService : IHostedService
     {
-        private static ILogger _logger;
+        private static ILogger logger;
+
         public SchedulingService()
         {
             SetUpNLog();
@@ -38,7 +37,7 @@ namespace Scheduling.Service
             }
             catch (Exception ex)
             {
-                _logger.Error(new CustomConfigurationException(ex.Message));
+                logger.Error(new CustomConfigurationException(ex.Message));
             }
         }
 
@@ -47,13 +46,13 @@ namespace Scheduling.Service
             if (await scheduler.CheckExists(jobDetail.Key))
             {
                 await scheduler.ResumeJob(jobDetail.Key);
-                _logger.Info($"The job key {jobDetail.Key} was already existed, thus resuming the same");
+                logger.Info($"The job key {jobDetail.Key} was already existed, thus resuming the same");
             }
             else
             {
                 ITrigger trigger = GetJobTrigger(jobName);
                 await scheduler.ScheduleJob(jobDetail, trigger);
-                _logger.Info($"The job key {jobDetail.Key} is schedulded to run next at {trigger.GetNextFireTimeUtc()}");
+                logger.Info($"The job key {jobDetail.Key} is schedulded to run next at {trigger.GetNextFireTimeUtc()}");
             }
         }
 
@@ -66,16 +65,15 @@ namespace Scheduling.Service
         private IServiceProvider GetConfiguredServiceProvider()
         {
             var services = new ServiceCollection()
-                .AddSingleton(_logger)
-                .AddScoped<IScheduledJob, ScheduledJob1>()
-                .AddScoped<IScheduledJob, ScheduledJob2>()
-                .AddScoped<IScheduledJob, ScheduledJob3>()
-                .AddScoped<IScheduledJob, ScheduledJob4>()
-                .AddScoped<IHelperService, HelperService>();
+                .AddSingleton(logger)
+                .AddSingleton(new ScheduledJob1(logger))
+                .AddSingleton(new ScheduledJob2(logger))
+                .AddSingleton(new ScheduledJob3(logger))
+                .AddSingleton(new ScheduledJob4(logger));
             return services.BuildServiceProvider();
         }
 
-        private IJobDetail GetJobDetail<T>() where T : IScheduledJob
+        private IJobDetail GetJobDetail<T>() where T : IJob
         {
             IJobDetail jobDetail = JobBuilder.Create<T>()
                 .WithIdentity($"DetailFor{typeof(T)}")
@@ -88,7 +86,8 @@ namespace Scheduling.Service
             string configValue = ConfigurationManager.AppSettings[$"ScheduleFor{jobName}"];
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity($"TriggerFor{jobName}")
-                .WithCronSchedule(configValue)
+                .WithCronSchedule(configValue, x=> 
+                    x.WithMisfireHandlingInstructionDoNothing())
                 .Build();
             return trigger;
         }
@@ -109,18 +108,22 @@ namespace Scheduling.Service
             var scheduler = await factory.GetScheduler();
             return scheduler;
         }
+
         private void SetUpNLog()
         {
             var config = new NLog.Config.LoggingConfiguration();
+
             // Targets where to log to: File and Console
             var logfile = new NLog.Targets.FileTarget("logfile") { FileName = "backupclientlogfile_backupservice.txt" };
             var logconsole = new NLog.Targets.ConsoleTarget("logconsole");
-            // Rules for mapping loggers to targets            
+            
+            // Rules for mapping loggers to targets
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
             config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
-            // Apply config           
+            
+            // Apply config
             LogManager.Configuration = config;
-            _logger = LogManager.GetCurrentClassLogger();
+            logger = LogManager.GetCurrentClassLogger();
         }
         #endregion
     }

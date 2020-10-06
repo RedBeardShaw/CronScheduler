@@ -11,8 +11,4 @@
     <PackageReference Include="Quartz" Version="3.0.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Scheduling.Contracts\Scheduling.Contracts.csproj" />
-  </ItemGroup>
-
 </Project>

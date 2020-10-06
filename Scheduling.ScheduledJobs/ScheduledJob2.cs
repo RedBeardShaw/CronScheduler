@@ -2,10 +2,9 @@
 {
     using NLog;
     using Quartz;
-    using Scheduling.Contracts;
     using System.Threading.Tasks;
 
-    public class ScheduledJob2 : IScheduledJob
+    public class ScheduledJob2 : IJob
     {
         ILogger _logger;
 
